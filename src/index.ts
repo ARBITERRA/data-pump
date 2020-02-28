@@ -36,14 +36,16 @@ const main = async (params:any[]):Promise<void> => {
                          'coinegg', 'bcex', 'btctradeim', 'fcoin',
                          'fcoinjp', 'bibox', 'xbtce']
 
-  //const exchanges = _.difference(ccxt.exchanges, deadExchanges);
-  const exchanges:string[] = ccxt.exchanges
+  const exchanges = _.difference(ccxt.exchanges, deadExchanges);
+  //const exchanges:string[] = ccxt.exchanges
   log(ccxt.exchanges.length, 'exchanges supported');
   log(deadExchanges.length, 'dead exchanges');
   log('Complete list:');
   exchanges.map(log);
-  const exchangeOpts = { enableRateLimit: true };
-  const eInstances = exchanges.map((exchange:string) => new ccxt[exchange](exchangeOpts));
+		const exchangeOpts = { enableRateLimit: true };
+		let eInstances = []
+	// eInstances = exchanges.map((exchange:string) => new ccxt[exchange](exchangeOpts));
+	eInstances = [new ccxt.binance(exchangeOpts)
   eInstances.forEach((exchange:Exchange) => {
     const dir = `${__dirname}/upload/${exchange.id}`;
     log('Creating directory', dir)
@@ -55,31 +57,28 @@ const main = async (params:any[]):Promise<void> => {
       }
     });    
   })
-  
+
   const adp = new CCXTDataPumper(eInstances,
     ['ETH/BTC', 'USDT/BTC'],
     config);
 
   log(red('Does not support'))
-  eInstances.filter((it) => it.hasFetchOrderBook === false).map((exchange:Exchange) => log('fetchOrderBook', exchange.id))  
-  const fobs = eInstances.filter((it) => it.hasFetchOrderBooks === false).map((exchange:Exchange) => log('fetchOrderBooks', exchange.id))
-  log('Total', fobs.length)
-  // await adp.start()
-  //   .then((results:any[]) => log('Pulling:', results))
-  //   .then(() => Promise.all(eInstances.map((e:Exchange) => CCXTDataPumper.pull(e)))
-  //   .catch((err:any) => log(red(err)))  
-  //   .then((obs:OrderBook[][]) => {
-  //     const dir = `${__dirname}/upload/`;
-  //     // for(let oba in obs)
-  //     //   for(let ob in oba){
-  //     //     let ws = fs.createWriteStream(`${dir}/${ob.exchangeId}`)
-  //     //     ws.write(ob);
-  //     //     ws.close()
-  //     //   }
-  //     let ws = fs.createWriteStream(`${dir}/upload.json`)
-  //     ws.write(JSON.stringify(obs, null, 2));
-  //     ws.close();
-  //   }));    
+  await adp.start()
+    .then((results:any[]) => log('Pulling:', results))
+    .then(() => Promise.all(eInstances.map((e:Exchange) => CCXTDataPumper.pull(e)))
+    .catch((err:any) => log(red(err)))  
+    .then((obs:OrderBook[][]) => {
+      const dir = `${__dirname}/upload/`;
+      for(let oba in obs)
+        for(let ob in oba){
+          let ws = fs.createWriteStream(`${dir}/${ob.exchangeId}`)
+          ws.write(ob);
+          ws.close()
+        }
+      // let ws = fs.createWriteStream(`${dir}/upload.json`)
+      // ws.write(JSON.stringify(obs, null, 2));
+      // ws.close();
+    }));    
 };
 
 main(process.argv)
