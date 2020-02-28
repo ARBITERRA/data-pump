@@ -27,14 +27,14 @@ abstract class AbstractDataPumper {
     this.kinesis.putRecordsAsync = Bluebird.promisify(this.kinesis.putRecords);
     console.log('Kinesis created');
 
-    const params = {
-      StreamName: 'binance', /* required */
-    };
+    // const params = {
+    //   StreamName: 'binance', /* required */
+    // };
 
-    this.kinesis
-      .waitForAsync('streamExists', params)
-      .then((data:any) => log(yellow(JSON.stringify(data, null, 2))))
-      .catch((err:any) => log(red(err)));
+    // this.kinesis
+    //   .waitForAsync('streamExists', params)
+    //   .then((data:any) => log(yellow(JSON.stringify(data, null, 2))))
+    //   .catch((err:any) => log(red(err)));
   }
 
   public abstract start():void;
@@ -42,7 +42,7 @@ abstract class AbstractDataPumper {
   public abstract stop():void;
 
   async signal() {
-    log(green('Starting'), underline(red('KINESSIS')), green('stream'));
+    log(green('Starting'), underline(red('KINESSIS')), green('stream'), this);
     return Promise.all([
       new Promise((resolve) => setTimeout(resolve, 5000)),
     ]);

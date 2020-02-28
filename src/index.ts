@@ -1,12 +1,19 @@
 import * as AWS from 'aws-sdk';
 import * as dotenv from 'dotenv-flow';
-import * as ccxt from 'ccxt';
-import {
-  binance, huobipro, cex, kraken, exchanges,
-} from 'ccxt';
 
 import * as log from 'ololog';
+import {
+  green, red, yellow, underline,
+} from 'ansicolor';
 import { CCXTDataPumper } from './ccxtDataPumper';
+
+import { Exchange, OrderBook } from 'ccxt';
+const ccxt = require('ccxt');
+
+import * as fs from 'fs';
+import * as path from 'path';
+
+import * as _ from 'lodash';
 
 dotenv.config();
 
@@ -24,23 +31,55 @@ const main = async (params:any[]):Promise<void> => {
     region: process.env.AWS_REGION,
   });
 
-  log('The total of ', exchanges.length, 'exchanges supported');
+  const deadExchanges = ['cobinhood', 'coingi', 'vaultoro', 'coss',
+                         'flowbtc', 'anxpro', 'stronghold', 'coolcoin',
+                         'coinegg', 'bcex', 'btctradeim', 'fcoin',
+                         'fcoinjp', 'bibox', 'xbtce']
+
+  //const exchanges = _.difference(ccxt.exchanges, deadExchanges);
+  const exchanges:string[] = ccxt.exchanges
+  log(ccxt.exchanges.length, 'exchanges supported');
+  log(deadExchanges.length, 'dead exchanges');
   log('Complete list:');
   exchanges.map(log);
+  const exchangeOpts = { enableRateLimit: true };
+  const eInstances = exchanges.map((exchange:string) => new ccxt[exchange](exchangeOpts));
+  eInstances.forEach((exchange:Exchange) => {
+    const dir = `${__dirname}/upload/${exchange.id}`;
+    log('Creating directory', dir)
+    fs.mkdir(dir, { recursive: true }, (err:any) => {
+      if (err) {
+        log(red(err));
+      } else {
+        log('Created', dir);
+      }
+    });    
+  })
+  
+  const adp = new CCXTDataPumper(eInstances,
+    ['ETH/BTC', 'USDT/BTC'],
+    config);
 
-  const adp = new CCXTDataPumper([
-    new binance({ enableRateLimit: true }),
-    new huobipro({ enableRateLimit: true }),
-    new cex({ enableRateLimit: true }),
-    new kraken({ enableRateLimit: true }),
-  ], ['ETH/BTC', 'USDT/BTC'], config);
-
-  const results:any = await adp.start();
-
-  log('Pulling:', results);
-  await CCXTDataPumper.pull(adp.exchanges[0]);
-  log(results);
-  // await adp.signal();
+  log(red('Does not support'))
+  eInstances.filter((it) => it.hasFetchOrderBook === false).map((exchange:Exchange) => log('fetchOrderBook', exchange.id))  
+  const fobs = eInstances.filter((it) => it.hasFetchOrderBooks === false).map((exchange:Exchange) => log('fetchOrderBooks', exchange.id))
+  log('Total', fobs.length)
+  // await adp.start()
+  //   .then((results:any[]) => log('Pulling:', results))
+  //   .then(() => Promise.all(eInstances.map((e:Exchange) => CCXTDataPumper.pull(e)))
+  //   .catch((err:any) => log(red(err)))  
+  //   .then((obs:OrderBook[][]) => {
+  //     const dir = `${__dirname}/upload/`;
+  //     // for(let oba in obs)
+  //     //   for(let ob in oba){
+  //     //     let ws = fs.createWriteStream(`${dir}/${ob.exchangeId}`)
+  //     //     ws.write(ob);
+  //     //     ws.close()
+  //     //   }
+  //     let ws = fs.createWriteStream(`${dir}/upload.json`)
+  //     ws.write(JSON.stringify(obs, null, 2));
+  //     ws.close();
+  //   }));    
 };
 
 main(process.argv)
