@@ -1,0 +1,9 @@
+{
+    "defaultSeverity": "none",
+		"extends": ["tslint:latest", "tslint-config-airbnb"],
+		"rules": {
+				"no-empty": true,				
+				"trailing-comma": [true],
+				"no-string-throw": false
+		}                                                                            
+}                                                                                           

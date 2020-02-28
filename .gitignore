@@ -1,0 +1,12 @@
+/node_modules/
+/out/
+/.env.local
+/src/*.png
+/yarn.lock
+/package-lock.json
+/*.log
+/**/*.js
+/**/*.js.map
+
+/docs/
+/3.0.0

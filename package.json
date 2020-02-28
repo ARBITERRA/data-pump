@@ -1,0 +1,82 @@
+{
+  "main": "dist/app.js",
+  "types": "dist/app.d.ts",
+  "devDependencies": {
+    "@types/chai": "^4.2.8",
+    "@types/chai-as-promised": "^7.1.2",
+    "@types/mocha": "^5.2.7",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "cross-spawn": "^7.0.1",
+    "del": "^5.1.0",
+    "dotup-ts-git-wrapper": "^1.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.20.1",
+    "gh-pages": "^2.2.0",
+    "gulp": "^4.0.2",
+    "gulp-gh-pages": "^0.5.4",
+    "gulp-mocha": "^7.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-tslint": "^8.1.4",
+    "gulp-typedoc": "^2.2.4",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "mocha": "^7.0.0",
+    "ts-node": "^8.6.2",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "tslint": "^6.0.0",
+    "tslint-config-airbnb": "^5.11.2",
+    "tslint-microsoft-contrib": "^6.2.0",
+    "typedoc": "^0.16.8",
+    "typescript": "^3.7.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agutsal/puppeteer-robot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/agutsal/puppeteer-robot/issues"
+  },
+  "homepage": "https://github.com/agutsal/puppeteer-robot#readme",
+  "scripts": {
+    "postpublish": "git tag -a v%npm_package_version% -m \"Release v%npm_package_version%\" && git push origin --tags",
+    "commit-release": "git commit -a -m \"Release v%npm_package_version%\" && git push && git tag -a v%npm_package_version% -m \"Release v%npm_package_version%\" && git push origin --tags",
+    "build": "$(npm bin)/tsc --build tsconfig.json",
+    "lint-src": "$(npm bin)/eslint src/*.ts",
+    "lint-test": "$(npm bin)/eslint test/*.ts",
+    "lint": "npm run lint-src && npm run lint-test",
+    "test": "$(npm bin)/_mocha --require ts-node/register test/*.test.ts --reporter spec --exit",
+    "start": "$(npm bin)/ts-node src/index.ts",
+    "docs": "typedoc --mode file --out docs src --exclude \"**/*+(index|.spec|.test|.e2e).ts\"",
+    "gh-pages": "rimraf docs && npm run docs && gh-pages -d docs",
+    "npm-publish": "npm publish"
+  },
+  "version": "0.0.0",
+  "name": "puppeteer-robot",
+  "author": {
+    "name": "Arsen A. Gutsal",
+    "email": "gutsal.arsen@gmail.com"
+  },
+  "dependencies": {
+    "@types/async": "^3.0.8",
+    "@types/aws-sdk": "^2.7.0",
+    "@types/bluebird": "^3.5.29",
+    "@types/bluebird-global": "^3.5.12",
+    "@types/dotenv-flow": "^3.0.0",
+    "@types/express": "^4.17.2",
+    "@types/lodash": "^4.14.149",
+    "ansicolor": "^1.1.93",
+    "async": "^3.2.0",
+    "aws-sdk": "^2.625.0",
+    "bluebird": "^3.7.2",
+    "bluebird-global": "^1.0.1",
+    "ccxt": "ccxt/ccxt",
+    "dotenv-flow": "^3.1.0",
+    "express": "^4.17.1",
+    "lodash": "^4.17.15",
+    "ololog": "^1.1.155",
+    "p-throttle": "^3.1.0"
+  }
+}
